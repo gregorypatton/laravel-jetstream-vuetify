@@ -1,4 +1,5 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
 const logoUrl = import.meta.env.VITE_APP_LOGO;
 const titleApp = import.meta.env.VITE_APP_NAME;
 </script>
