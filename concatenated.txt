@@ -1,0 +1,3889 @@
+
+
+==== resources\js\Pages\Auth\ConfirmPassword.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const form = useForm({
+  password: '',
+});
+
+const passwordInput = ref(null);
+
+const submit = () => {
+  form.post(route('password.confirm'), {
+    onFinish: () => {
+      form.reset();
+
+      passwordInput.value.focus();
+    },
+  });
+};
+</script>
+
+<template>
+  <Head title="Secure Area" />
+
+  <AuthenticationCard>
+    <template #logo>
+      <AuthenticationCardLogo />
+    </template>
+
+    <div class="mb-4 text-sm text-gray-600">
+      This is a secure area of the application. Please confirm your password
+      before continuing.
+    </div>
+
+    <form @submit.prevent="submit">
+      <div>
+        <InputLabel for="password" value="Password" />
+        <TextInput
+          id="password"
+          ref="passwordInput"
+          v-model="form.password"
+          type="password"
+          class="mt-1 block w-full"
+          required
+          autocomplete="current-password"
+          autofocus
+        />
+        <InputError class="mt-2" :message="form.errors.password" />
+      </div>
+
+      <div class="flex justify-end mt-4">
+        <PrimaryButton
+          class="ms-4"
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Confirm
+        </PrimaryButton>
+      </div>
+    </form>
+  </AuthenticationCard>
+</template>
+
+
+==== resources\js\Pages\Auth\ForgotPassword.vue ====
+
+<script setup>
+import { Head, useForm, Link } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import InputError from '@/Components/InputError.vue';
+// import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+// import TextInput from '@/Components/TextInput.vue';
+import AuthLayout from '@/Layouts/AuthLayout.vue';
+
+defineProps({
+  status: String,
+});
+
+const form = useForm({
+  email: '',
+});
+
+const submit = () => {
+  form.post(route('password.email'));
+};
+</script>
+
+<template>
+  <Head title="Forgot Password" />
+  <AuthLayout>
+    <AuthenticationCard>
+      <template #logo>
+        <AuthenticationCardLogo />
+      </template>
+
+      <div class="mb-8 text-center text-sm text-gray-600">
+        Forgot your password? No problem. Just let us know your email address
+        and we will email you a password reset link that will allow you to
+        choose a new one.
+      </div>
+
+      <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        {{ status }}
+      </div>
+
+      <form @submit.prevent="submit">
+        <div>
+          <VTextField
+            label="Email"
+            variant="outlined"
+            id="email"
+            v-model="form.email"
+            type="email"
+            class="mt-1 block w-full"
+            required
+            autofocus
+            autocomplete="username"
+          />
+          <InputError class="mt-2" :message="form.errors.email" />
+        </div>
+
+        <div class="flex items-center justify-end mt-4">
+          <PrimaryButton
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+          >
+            Email Password Reset Link
+          </PrimaryButton>
+        </div>
+        <div class="mt-5 flex justify-center">
+          <Link
+            :href="route('login')"
+            class="text-md text-primary ml-3 font-bold hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Back to login
+          </Link>
+        </div>
+      </form>
+    </AuthenticationCard>
+  </AuthLayout>
+</template>
+
+
+==== resources\js\Pages\Auth\Login.vue ====
+
+<script setup>
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+// import Checkbox from '@/Components/Checkbox.vue';
+import InputError from '@/Components/InputError.vue';
+// import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+// import TextInput from '@/Components/TextInput.vue';
+import AuthLayout from '@/Layouts/AuthLayout.vue';
+
+defineProps({
+  canResetPassword: Boolean,
+  status: String,
+});
+
+const form = useForm({
+  email: '',
+  password: '',
+  remember: false,
+});
+
+const submit = () => {
+  form
+    .transform((data) => ({
+      ...data,
+      remember: form.remember ? 'on' : '',
+    }))
+    .post(route('login'), {
+      onFinish: () => form.reset('password'),
+    });
+};
+</script>
+
+<template>
+  <Head title="Log in" />
+  <AuthLayout>
+    <AuthenticationCard>
+      <template #logo>
+        <AuthenticationCardLogo />
+      </template>
+
+      <div class="mb-8 text-center">
+        <p>Please sign-in to your account and start the adventure</p>
+      </div>
+
+      <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        {{ status }}
+      </div>
+
+      <form @submit.prevent="submit">
+        <VTextField
+          label="Email"
+          variant="outlined"
+          id="email"
+          v-model="form.email"
+          type="email"
+          class="mt-1 block w-full"
+          required
+          autofocus
+          autocomplete="username"
+        ></VTextField>
+        <InputError class="mt-2" :message="form.errors.email" />
+
+        <VTextField
+          label="Password"
+          variant="outlined"
+          id="password"
+          v-model="form.password"
+          type="password"
+          class="mt-1 block w-full"
+          required
+          autocomplete="current-password"
+        ></VTextField>
+        <InputError class="mt-2" :message="form.errors.password" />
+
+        <div class="flex justify-between">
+          <label class="flex items-center align-middle">
+            <VCheckbox
+              v-model:checked="form.remember"
+              color="primary"
+              label="Remember me"
+              name="remember"
+            />
+          </label>
+          <Link
+            v-if="canResetPassword"
+            :href="route('password.request')"
+            class="mt-4 text-primary font-bold hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Forgot password?
+          </Link>
+        </div>
+
+        <div class="flex items-center justify-end">
+          <PrimaryButton
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+          >
+            Log in
+          </PrimaryButton>
+        </div>
+      </form>
+      <div class="mt-5 flex justify-center">
+        <span>New to our Application?</span>
+        <Link
+          :href="route('register')"
+          class="ml-1 text-primary font-bold hover:text-gray-900"
+          >Register here</Link
+        >
+      </div>
+    </AuthenticationCard>
+  </AuthLayout>
+</template>
+
+
+==== resources\js\Pages\Auth\Register.vue ====
+
+<script setup>
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import Checkbox from '@/Components/Checkbox.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+// import TextInput from '@/Components/TextInput.vue';
+import AuthLayout from '@/Layouts/AuthLayout.vue';
+
+const form = useForm({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+  terms: false,
+});
+
+const submit = () => {
+  form.post(route('register'), {
+    onFinish: () => form.reset('password', 'password_confirmation'),
+  });
+};
+</script>
+
+<template>
+  <Head title="Register" />
+  <AuthLayout>
+    <AuthenticationCard>
+      <template #logo>
+        <AuthenticationCardLogo />
+      </template>
+
+      <form @submit.prevent="submit">
+        <div>
+          <VTextField
+            id="name"
+            label="Name"
+            variant="outlined"
+            v-model="form.name"
+            type="text"
+            class="mt-1 block w-full"
+            required
+            autofocus
+            autocomplete="name"
+          />
+          <InputError class="mt-2" :message="form.errors.name" />
+        </div>
+
+        <div class="mt-4">
+          <VTextField
+            id="email"
+            label="email"
+            variant="outlined"
+            v-model="form.email"
+            type="email"
+            class="mt-1 block w-full"
+            required
+            autofocus
+            autocomplete="username"
+          />
+          <InputError class="mt-2" :message="form.errors.email" />
+        </div>
+
+        <div class="mt-4">
+          <VTextField
+            label="password"
+            variant="outlined"
+            id="password"
+            v-model="form.password"
+            type="password"
+            class="mt-1 block w-full"
+            required
+            autocomplete="new-password"
+          />
+          <InputError class="mt-2" :message="form.errors.password" />
+        </div>
+
+        <div class="mt-4">
+          <VTextField
+            label="Confirm Password"
+            variant="outlined"
+            id="password_confirmation"
+            v-model="form.password_confirmation"
+            type="password"
+            class="mt-1 block w-full"
+            required
+            autocomplete="new-password"
+          />
+          <InputError
+            class="mt-2"
+            :message="form.errors.password_confirmation"
+          />
+        </div>
+
+        <div
+          v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature"
+          class="mt-4"
+        >
+          <InputLabel for="terms">
+            <div class="flex items-center">
+              <Checkbox
+                id="terms"
+                v-model:checked="form.terms"
+                name="terms"
+                required
+              />
+
+              <div class="ms-2">
+                I agree to the
+                <a
+                  target="_blank"
+                  :href="route('terms.show')"
+                  class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >Terms of Service</a
+                >
+                and
+                <a
+                  target="_blank"
+                  :href="route('policy.show')"
+                  class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >Privacy Policy</a
+                >
+              </div>
+            </div>
+            <InputError class="mt-2" :message="form.errors.terms" />
+          </InputLabel>
+        </div>
+
+        <div class="flex items-center justify-end mt-4">
+          <PrimaryButton
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+          >
+            Register
+          </PrimaryButton>
+        </div>
+        <div class="mt-5 flex justify-center">
+          <p>Already registered?</p>
+          <Link
+            :href="route('login')"
+            class="text-md text-primary ml-3 font-bold hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Login here
+          </Link>
+        </div>
+      </form>
+    </AuthenticationCard>
+  </AuthLayout>
+</template>
+
+
+==== resources\js\Pages\Auth\ResetPassword.vue ====
+
+<script setup>
+import { Head, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const props = defineProps({
+  email: String,
+  token: String,
+});
+
+const form = useForm({
+  token: props.token,
+  email: props.email,
+  password: '',
+  password_confirmation: '',
+});
+
+const submit = () => {
+  form.post(route('password.update'), {
+    onFinish: () => form.reset('password', 'password_confirmation'),
+  });
+};
+</script>
+
+<template>
+  <Head title="Reset Password" />
+
+  <AuthenticationCard>
+    <template #logo>
+      <AuthenticationCardLogo />
+    </template>
+
+    <form @submit.prevent="submit">
+      <div>
+        <InputLabel for="email" value="Email" />
+        <TextInput
+          id="email"
+          v-model="form.email"
+          type="email"
+          class="mt-1 block w-full"
+          required
+          autofocus
+          autocomplete="username"
+        />
+        <InputError class="mt-2" :message="form.errors.email" />
+      </div>
+
+      <div class="mt-4">
+        <InputLabel for="password" value="Password" />
+        <TextInput
+          id="password"
+          v-model="form.password"
+          type="password"
+          class="mt-1 block w-full"
+          required
+          autocomplete="new-password"
+        />
+        <InputError class="mt-2" :message="form.errors.password" />
+      </div>
+
+      <div class="mt-4">
+        <InputLabel for="password_confirmation" value="Confirm Password" />
+        <TextInput
+          id="password_confirmation"
+          v-model="form.password_confirmation"
+          type="password"
+          class="mt-1 block w-full"
+          required
+          autocomplete="new-password"
+        />
+        <InputError class="mt-2" :message="form.errors.password_confirmation" />
+      </div>
+
+      <div class="flex items-center justify-end mt-4">
+        <PrimaryButton
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Reset Password
+        </PrimaryButton>
+      </div>
+    </form>
+  </AuthenticationCard>
+</template>
+
+
+==== resources\js\Pages\Auth\TwoFactorChallenge.vue ====
+
+<script setup>
+import { nextTick, ref } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const recovery = ref(false);
+
+const form = useForm({
+  code: '',
+  recovery_code: '',
+});
+
+const recoveryCodeInput = ref(null);
+const codeInput = ref(null);
+
+const toggleRecovery = async () => {
+  recovery.value ^= true;
+
+  await nextTick();
+
+  if (recovery.value) {
+    recoveryCodeInput.value.focus();
+    form.code = '';
+  } else {
+    codeInput.value.focus();
+    form.recovery_code = '';
+  }
+};
+
+const submit = () => {
+  form.post(route('two-factor.login'));
+};
+</script>
+
+<template>
+  <Head title="Two-factor Confirmation" />
+
+  <AuthenticationCard>
+    <template #logo>
+      <AuthenticationCardLogo />
+    </template>
+
+    <div class="mb-4 text-sm text-gray-600">
+      <template v-if="!recovery">
+        Please confirm access to your account by entering the authentication
+        code provided by your authenticator application.
+      </template>
+
+      <template v-else>
+        Please confirm access to your account by entering one of your emergency
+        recovery codes.
+      </template>
+    </div>
+
+    <form @submit.prevent="submit">
+      <div v-if="!recovery">
+        <InputLabel for="code" value="Code" />
+        <TextInput
+          id="code"
+          ref="codeInput"
+          v-model="form.code"
+          type="text"
+          inputmode="numeric"
+          class="mt-1 block w-full"
+          autofocus
+          autocomplete="one-time-code"
+        />
+        <InputError class="mt-2" :message="form.errors.code" />
+      </div>
+
+      <div v-else>
+        <InputLabel for="recovery_code" value="Recovery Code" />
+        <TextInput
+          id="recovery_code"
+          ref="recoveryCodeInput"
+          v-model="form.recovery_code"
+          type="text"
+          class="mt-1 block w-full"
+          autocomplete="one-time-code"
+        />
+        <InputError class="mt-2" :message="form.errors.recovery_code" />
+      </div>
+
+      <div class="flex items-center justify-end mt-4">
+        <button
+          type="button"
+          class="text-sm text-gray-600 hover:text-gray-900 underline cursor-pointer"
+          @click.prevent="toggleRecovery"
+        >
+          <template v-if="!recovery"> Use a recovery code </template>
+
+          <template v-else> Use an authentication code </template>
+        </button>
+
+        <PrimaryButton
+          class="ms-4"
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Log in
+        </PrimaryButton>
+      </div>
+    </form>
+  </AuthenticationCard>
+</template>
+
+
+==== resources\js\Pages\Auth\VerifyEmail.vue ====
+
+<script setup>
+import { computed } from 'vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+
+const props = defineProps({
+  status: String,
+});
+
+const form = useForm({});
+
+const submit = () => {
+  form.post(route('verification.send'));
+};
+
+const verificationLinkSent = computed(
+  () => props.status === 'verification-link-sent',
+);
+</script>
+
+<template>
+  <Head title="Email Verification" />
+
+  <AuthenticationCard>
+    <template #logo>
+      <AuthenticationCardLogo />
+    </template>
+
+    <div class="mb-4 text-sm text-gray-600">
+      Before continuing, could you verify your email address by clicking on the
+      link we just emailed to you? If you didn't receive the email, we will
+      gladly send you another.
+    </div>
+
+    <div
+      v-if="verificationLinkSent"
+      class="mb-4 font-medium text-sm text-green-600"
+    >
+      A new verification link has been sent to the email address you provided in
+      your profile settings.
+    </div>
+
+    <form @submit.prevent="submit">
+      <div class="mt-4 flex items-center justify-between">
+        <PrimaryButton
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Resend Verification Email
+        </PrimaryButton>
+
+        <div>
+          <Link
+            :href="route('profile.show')"
+            class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Edit Profile</Link
+          >
+
+          <Link
+            :href="route('logout')"
+            method="post"
+            as="button"
+            class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2"
+          >
+            Log Out
+          </Link>
+        </div>
+      </div>
+    </form>
+  </AuthenticationCard>
+</template>
+
+
+==== resources\js\Pages\EtlConfig\Form.vue ====
+
+<script setup>
+import { ref, watch } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { VContainer, VRow, VCol, VTextField, VBtn, VCard, VCardActions, VSnackbar } from 'vuetify/components';
+import AppLayout from '@/Layouts/AppLayout.vue';
+
+// Define props to accept `etlConfig` from Inertia
+const { etlConfig } = defineProps({
+  etlConfig: Object,
+});
+
+// Snackbar state for success message
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
+
+// State for pagination
+const page = ref(1);
+const itemsPerPage = ref(10);
+
+// State for editing vs creating
+const form = useForm({
+  report_type: etlConfig?.report_type || '',
+  seller_id: etlConfig?.seller_id || '',
+  channel_id: etlConfig?.channel_id || '',
+  last_run_status: etlConfig?.last_run_status || '',
+  last_run_ts: etlConfig?.last_run_ts || '',
+  last_report_id: etlConfig?.last_report_id || '',
+  last_report_doc: etlConfig?.last_report_doc || '',
+  first_run_hr: etlConfig?.first_run_hr || '',
+  freq_run_min: etlConfig?.freq_run_min || '',
+});
+
+// Watch for form success response
+watch(() => form.recentlySuccessful, (value) => {
+  if (value) {
+    snackbarMessage.value = etlConfig?.etl_config_id ? 'ETL Config updated successfully!' : 'ETL Config created successfully!';
+    showSnackbar.value = true;
+
+    setTimeout(() => {
+      window.location.href = route('etl_configs.index');
+    }, 1500);
+  }
+});
+
+// Submit form for creating/updating ETL config
+function submitForm() {
+  if (etlConfig?.etl_config_id) {
+    form.put(route('etl_configs.update', { id: etlConfig.etl_config_id }));
+  } else {
+    form.post(route('etl_configs.store'));
+  }
+}
+</script>
+
+<template>
+  <AppLayout :title="etlConfig?.etl_config_id ? 'Edit ETL Config' : 'Create ETL Config'">
+    <template #header>
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ etlConfig?.etl_config_id ? 'Edit ETL Config' : 'Create ETL Config' }}
+      </h2>
+    </template>
+
+    <div class="py-5">
+      <div class="max-w-7xl mx-auto sm:px-2 lg:px-2">
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+          <VContainer>
+            <VRow>
+              <VCol class="mt-6">
+                <VCard>
+                  <form @submit.prevent="submitForm">
+                    <VRow>
+                      <VCol cols="12">
+                        <VTextField
+                          v-model="form.report_type"
+                          label="Report Type"
+                          :error-messages="form.errors.report_type"
+                          required
+                        />
+                      </VCol>
+
+                      <VCol cols="6">
+                        <VTextField
+                          v-model="form.seller_id"
+                          label="Seller ID"
+                          type="number"
+                          :error-messages="form.errors.seller_id"
+                          required
+                        />
+                      </VCol>
+
+                      <VCol cols="6">
+                        <VTextField
+                          v-model="form.channel_id"
+                          label="Channel ID"
+                          type="number"
+                          :error-messages="form.errors.channel_id"
+                          required
+                        />
+                      </VCol>
+
+                      <VCol cols="12">
+                        <VTextField
+                          v-model="form.last_run_status"
+                          label="Last Run Status"
+                          :error-messages="form.errors.last_run_status"
+                        />
+                      </VCol>
+
+                      <VCol cols="6">
+                        <VTextField
+                          v-model="form.first_run_hr"
+                          label="First Run Hour"
+                          type="number"
+                          :error-messages="form.errors.first_run_hr"
+                        />
+                      </VCol>
+
+                      <VCol cols="6">
+                        <VTextField
+                          v-model="form.freq_run_min"
+                          label="Frequency Run (Minutes)"
+                          type="number"
+                          :error-messages="form.errors.freq_run_min"
+                        />
+                      </VCol>
+                    </VRow>
+
+                    <!-- Form actions -->
+                    <VCardActions class="justify-end">
+                      <VBtn type="submit" color="success">
+                        {{ etlConfig?.etl_config_id ? 'Update' : 'Create' }}
+                      </VBtn>
+                    </VCardActions>
+                  </form>
+                </VCard>
+              </VCol>
+            </VRow>
+
+            <!-- Snackbar for success message -->
+            <VSnackbar v-model="showSnackbar" :timeout="1500" color="success">
+              {{ snackbarMessage }}
+            </VSnackbar>
+          </VContainer>
+        </div>
+      </div>
+    </div>
+  </AppLayout>
+</template>
+
+
+==== resources\js\Pages\EtlConfig\Index.vue ====
+
+<script lang="ts" setup>
+import { ref, watch } from 'vue';
+import { Head, Link } from '@inertiajs/vue3';
+
+// Props passed from the server
+const props = defineProps({
+  etlConfigs: Object,
+  isRecent: Boolean,
+});
+
+// Setup the form state for pagination
+const options = ref({
+  page: props.etlConfigs.current_page,
+  itemsPerPage: props.etlConfigs.per_page,
+});
+
+// Watch the pagination options and trigger a page reload via Inertia.js
+watch(options, (newOptions) => {
+  $inertia.get(route(props.isRecent ? 'etl_configs.recent' : 'etl_configs.index'), {
+    page: newOptions.page,
+    itemsPerPage: newOptions.itemsPerPage,
+  }, {
+    preserveScroll: true,
+    only: ['etlConfigs'], // Only reload the etlConfigs data
+  });
+});
+</script>
+
+<template>
+  <Head title="ETL Configs" />
+
+  <AppLayout title="ETL Configs">
+    <VDataTableServer
+      :headers="[
+        { text: 'Report Type', value: 'report_type' },
+        { text: 'Channel ID', value: 'channel_id' },
+        { text: 'Last Run Status', value: 'last_run_status' },
+        { text: 'Actions', value: 'actions' }
+      ]"
+      :items="etlConfigs.data"
+      :server-items-length="etlConfigs.total"
+      :items-per-page="options.itemsPerPage"
+      :loading="false"
+      v-model:options="options"
+      item-value="etl_config_id"
+      class="elevation-1"
+    >
+      <template v-slot:item.actions="{ item }">
+        <Link :href="route('etl_configs.edit', item.etl_config_id)">
+          <VBtn color="primary" icon="mdi-pencil">Edit</VBtn>
+        </Link>
+        <Link :href="route('etl_configs.download', item.etl_config_id)">
+          <VBtn color="secondary" icon="mdi-download">Download</VBtn>
+        </Link>
+      </template>
+    </VDataTableServer>
+
+    <VPagination
+      v-model="options.page"
+      :length="etlConfigs.last_page"
+      :total-items="etlConfigs.total"
+      :items-per-page="options.itemsPerPage"
+    />
+  </AppLayout>
+</template>
+
+
+==== resources\js\Pages\EtlConfig\Form.vue ====
+
+<script setup>
+import { ref, watch } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { VContainer, VRow, VCol, VTextField, VBtn, VCard, VCardActions, VSnackbar } from 'vuetify/components';
+import AppLayout from '@/Layouts/AppLayout.vue';
+
+// Define props to accept `etlConfig` from Inertia
+const { etlConfig } = defineProps({
+  etlConfig: Object,
+});
+
+// Snackbar state for success message
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
+
+// State for pagination
+const page = ref(1);
+const itemsPerPage = ref(10);
+
+// State for editing vs creating
+const form = useForm({
+  report_type: etlConfig?.report_type || '',
+  seller_id: etlConfig?.seller_id || '',
+  channel_id: etlConfig?.channel_id || '',
+  last_run_status: etlConfig?.last_run_status || '',
+  last_run_ts: etlConfig?.last_run_ts || '',
+  last_report_id: etlConfig?.last_report_id || '',
+  last_report_doc: etlConfig?.last_report_doc || '',
+  first_run_hr: etlConfig?.first_run_hr || '',
+  freq_run_min: etlConfig?.freq_run_min || '',
+});
+
+// Watch for form success response
+watch(() => form.recentlySuccessful, (value) => {
+  if (value) {
+    snackbarMessage.value = etlConfig?.etl_config_id ? 'ETL Config updated successfully!' : 'ETL Config created successfully!';
+    showSnackbar.value = true;
+
+    setTimeout(() => {
+      window.location.href = route('etl_configs.index');
+    }, 1500);
+  }
+});
+
+// Submit form for creating/updating ETL config
+function submitForm() {
+  if (etlConfig?.etl_config_id) {
+    form.put(route('etl_configs.update', { id: etlConfig.etl_config_id }));
+  } else {
+    form.post(route('etl_configs.store'));
+  }
+}
+</script>
+
+<template>
+  <AppLayout :title="etlConfig?.etl_config_id ? 'Edit ETL Config' : 'Create ETL Config'">
+    <template #header>
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ etlConfig?.etl_config_id ? 'Edit ETL Config' : 'Create ETL Config' }}
+      </h2>
+    </template>
+
+    <div class="py-5">
+      <div class="max-w-7xl mx-auto sm:px-2 lg:px-2">
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+          <VContainer>
+            <VRow>
+              <VCol class="mt-6">
+                <VCard>
+                  <form @submit.prevent="submitForm">
+                    <VRow>
+                      <VCol cols="12">
+                        <VTextField
+                          v-model="form.report_type"
+                          label="Report Type"
+                          :error-messages="form.errors.report_type"
+                          required
+                        />
+                      </VCol>
+
+                      <VCol cols="6">
+                        <VTextField
+                          v-model="form.seller_id"
+                          label="Seller ID"
+                          type="number"
+                          :error-messages="form.errors.seller_id"
+                          required
+                        />
+                      </VCol>
+
+                      <VCol cols="6">
+                        <VTextField
+                          v-model="form.channel_id"
+                          label="Channel ID"
+                          type="number"
+                          :error-messages="form.errors.channel_id"
+                          required
+                        />
+                      </VCol>
+
+                      <VCol cols="12">
+                        <VTextField
+                          v-model="form.last_run_status"
+                          label="Last Run Status"
+                          :error-messages="form.errors.last_run_status"
+                        />
+                      </VCol>
+
+                      <VCol cols="6">
+                        <VTextField
+                          v-model="form.first_run_hr"
+                          label="First Run Hour"
+                          type="number"
+                          :error-messages="form.errors.first_run_hr"
+                        />
+                      </VCol>
+
+                      <VCol cols="6">
+                        <VTextField
+                          v-model="form.freq_run_min"
+                          label="Frequency Run (Minutes)"
+                          type="number"
+                          :error-messages="form.errors.freq_run_min"
+                        />
+                      </VCol>
+                    </VRow>
+
+                    <!-- Form actions -->
+                    <VCardActions class="justify-end">
+                      <VBtn type="submit" color="success">
+                        {{ etlConfig?.etl_config_id ? 'Update' : 'Create' }}
+                      </VBtn>
+                    </VCardActions>
+                  </form>
+                </VCard>
+              </VCol>
+            </VRow>
+
+            <!-- Snackbar for success message -->
+            <VSnackbar v-model="showSnackbar" :timeout="1500" color="success">
+              {{ snackbarMessage }}
+            </VSnackbar>
+          </VContainer>
+        </div>
+      </div>
+    </div>
+  </AppLayout>
+</template>
+
+
+==== resources\js\Pages\EtlConfig\Index.vue ====
+
+<script lang="ts" setup>
+import { ref, watch } from 'vue';
+import { Head, Link } from '@inertiajs/vue3';
+
+// Props passed from the server
+const props = defineProps({
+  etlConfigs: Object,
+  isRecent: Boolean,
+});
+
+// Setup the form state for pagination
+const options = ref({
+  page: props.etlConfigs.current_page,
+  itemsPerPage: props.etlConfigs.per_page,
+});
+
+// Watch the pagination options and trigger a page reload via Inertia.js
+watch(options, (newOptions) => {
+  $inertia.get(route(props.isRecent ? 'etl_configs.recent' : 'etl_configs.index'), {
+    page: newOptions.page,
+    itemsPerPage: newOptions.itemsPerPage,
+  }, {
+    preserveScroll: true,
+    only: ['etlConfigs'], // Only reload the etlConfigs data
+  });
+});
+</script>
+
+<template>
+  <Head title="ETL Configs" />
+
+  <AppLayout title="ETL Configs">
+    <VDataTableServer
+      :headers="[
+        { text: 'Report Type', value: 'report_type' },
+        { text: 'Channel ID', value: 'channel_id' },
+        { text: 'Last Run Status', value: 'last_run_status' },
+        { text: 'Actions', value: 'actions' }
+      ]"
+      :items="etlConfigs.data"
+      :server-items-length="etlConfigs.total"
+      :items-per-page="options.itemsPerPage"
+      :loading="false"
+      v-model:options="options"
+      item-value="etl_config_id"
+      class="elevation-1"
+    >
+      <template v-slot:item.actions="{ item }">
+        <Link :href="route('etl_configs.edit', item.etl_config_id)">
+          <VBtn color="primary" icon="mdi-pencil">Edit</VBtn>
+        </Link>
+        <Link :href="route('etl_configs.download', item.etl_config_id)">
+          <VBtn color="secondary" icon="mdi-download">Download</VBtn>
+        </Link>
+      </template>
+    </VDataTableServer>
+
+    <VPagination
+      v-model="options.page"
+      :length="etlConfigs.last_page"
+      :total-items="etlConfigs.total"
+      :items-per-page="options.itemsPerPage"
+    />
+  </AppLayout>
+</template>
+
+
+==== resources\js\Pages\Products\Index.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
+
+// Dummy data
+const dummyData = ref([
+  {
+    id: 1,
+    name: 'Dummy Product 1',
+    description: 'Description of Dummy Product 1',
+  },
+  {
+    id: 2,
+    name: 'Dummy Product 2',
+    description: 'Description of Dummy Product 2',
+  },
+  {
+    id: 3,
+    name: 'Dummy Product 3',
+    description: 'Description of Dummy Product 3',
+  },
+]);
+
+// Table headers
+const headers = ref([
+  { text: 'ID', align: 'start', value: 'id' },
+  { text: 'Name', value: 'name' },
+  { text: 'Description', value: 'description' },
+  // Add more headers as needed
+]);
+
+// Pagination and server-side options
+const options = ref({
+  page: 1,
+  itemsPerPage: 10, // Adjust as needed
+});
+
+const totalItems = ref(dummyData.value.length);
+const loading = ref(false);
+
+// Server-side handler (placeholder)
+const getServerData = async () => {
+  // Placeholder for server-side logic
+};
+</script>
+
+<template>
+  <AppLayout title="Products">
+    <VDataTableServer
+      :headers="headers"
+      :items="dummyData"
+      :total-items="totalItems"
+      :loading="loading"
+      v-model:options="options"
+      :server-items-length="serverItemsLength"
+      :items-per-page="options.itemsPerPage"
+      @update:options="getServerData"
+      class="elevation-1"
+    >
+      <template v-slot:item="{ item }">
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.description }}</td>
+          <!-- Add more columns as needed -->
+        </tr>
+      </template>
+    </VDataTableServer>
+  </AppLayout>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\DeleteUserForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionSection from '@/Components/ActionSection.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import DialogModal from '@/Components/DialogModal.vue';
+import InputError from '@/Components/InputError.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const confirmingUserDeletion = ref(false);
+const passwordInput = ref(null);
+
+const form = useForm({
+  password: '',
+});
+
+const confirmUserDeletion = () => {
+  confirmingUserDeletion.value = true;
+
+  setTimeout(() => passwordInput.value.focus(), 250);
+};
+
+const closeModal = () => {
+  confirmingUserDeletion.value = false;
+
+  form.reset();
+};
+
+const deleteUser = () => {
+  form.delete(route('current-user.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => closeModal(),
+    onError: () => passwordInput.value.focus(),
+    onFinish: () => form.reset(),
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Delete Account </template>
+
+    <template #description> Permanently delete your account. </template>
+
+    <template #content>
+      <div class="max-w-xl text-sm text-gray-600">
+        Once your account is deleted, all of its resources and data will be
+        permanently deleted. Before deleting your account, please download any
+        data or information that you wish to retain.
+      </div>
+
+      <div class="mt-5">
+        <DangerButton @click="confirmUserDeletion">
+          Delete Account
+        </DangerButton>
+      </div>
+
+      <!-- Delete Account Confirmation Modal -->
+      <DialogModal :show="confirmingUserDeletion" @close="closeModal">
+        <template #title> Delete Account </template>
+
+        <template #content>
+          Are you sure you want to delete your account? Once your account is
+          deleted, all of its resources and data will be permanently deleted.
+          Please enter your password to confirm you would like to permanently
+          delete your account.
+
+          <div class="mt-4">
+            <TextInput
+              ref="passwordInput"
+              v-model="form.password"
+              type="password"
+              class="mt-1 block w-3/4"
+              placeholder="Password"
+              autocomplete="current-password"
+              @keyup.enter="deleteUser"
+            />
+
+            <InputError :message="form.errors.password" class="mt-2" />
+          </div>
+        </template>
+
+        <template #footer>
+          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+
+          <DangerButton
+            class="ms-3"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+            @click="deleteUser"
+          >
+            Delete Account
+          </DangerButton>
+        </template>
+      </DialogModal>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\LogoutOtherBrowserSessionsForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import ActionSection from '@/Components/ActionSection.vue';
+import DialogModal from '@/Components/DialogModal.vue';
+import InputError from '@/Components/InputError.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+defineProps({
+  sessions: Array,
+});
+
+const confirmingLogout = ref(false);
+const passwordInput = ref(null);
+
+const form = useForm({
+  password: '',
+});
+
+const confirmLogout = () => {
+  confirmingLogout.value = true;
+
+  setTimeout(() => passwordInput.value.focus(), 250);
+};
+
+const closeModal = () => {
+  confirmingLogout.value = false;
+
+  form.reset();
+};
+
+const logoutOtherBrowserSessions = () => {
+  form.delete(route('other-browser-sessions.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => closeModal(),
+    onError: () => passwordInput.value.focus(),
+    onFinish: () => form.reset(),
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Browser Sessions </template>
+
+    <template #description>
+      Manage and log out your active sessions on other browsers and devices.
+    </template>
+
+    <template #content>
+      <div class="max-w-xl text-sm text-gray-600">
+        If necessary, you may log out of all of your other browser sessions
+        across all of your devices. Some of your recent sessions are listed
+        below; however, this list may not be exhaustive. If you feel your
+        account has been compromised, you should also update your password.
+      </div>
+
+      <!-- Other Browser Sessions -->
+      <div v-if="sessions.length > 0" class="mt-5 space-y-6">
+        <div
+          v-for="(session, i) in sessions"
+          :key="i"
+          class="flex items-center"
+        >
+          <div>
+            <svg
+              v-if="session.agent.is_desktop"
+              class="w-8 h-8 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"
+              />
+            </svg>
+
+            <svg
+              v-else
+              class="w-8 h-8 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
+              />
+            </svg>
+          </div>
+
+          <div class="ms-3">
+            <div class="text-sm text-gray-600">
+              {{ session.agent.platform ? session.agent.platform : 'Unknown' }}
+              - {{ session.agent.browser ? session.agent.browser : 'Unknown' }}
+            </div>
+
+            <div>
+              <div class="text-xs text-gray-500">
+                {{ session.ip_address }},
+
+                <span
+                  v-if="session.is_current_device"
+                  class="text-green-500 font-semibold"
+                  >This device</span
+                >
+                <span v-else>Last active {{ session.last_active }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center mt-5">
+        <PrimaryButton @click="confirmLogout">
+          Log Out Other Browser Sessions
+        </PrimaryButton>
+
+        <ActionMessage :on="form.recentlySuccessful" class="ms-3">
+          Done.
+        </ActionMessage>
+      </div>
+
+      <!-- Log Out Other Devices Confirmation Modal -->
+      <DialogModal :show="confirmingLogout" @close="closeModal">
+        <template #title> Log Out Other Browser Sessions </template>
+
+        <template #content>
+          Please enter your password to confirm you would like to log out of
+          your other browser sessions across all of your devices.
+
+          <div class="mt-4">
+            <TextInput
+              ref="passwordInput"
+              v-model="form.password"
+              type="password"
+              class="mt-1 block w-3/4"
+              placeholder="Password"
+              autocomplete="current-password"
+              @keyup.enter="logoutOtherBrowserSessions"
+            />
+
+            <InputError :message="form.errors.password" class="mt-2" />
+          </div>
+        </template>
+
+        <template #footer>
+          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+
+          <PrimaryButton
+            class="ms-3"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+            @click="logoutOtherBrowserSessions"
+          >
+            Log Out Other Browser Sessions
+          </PrimaryButton>
+        </template>
+      </DialogModal>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\TwoFactorAuthenticationForm.vue ====
+
+<script setup>
+import { ref, computed, watch } from 'vue';
+import { router, useForm, usePage } from '@inertiajs/vue3';
+import ActionSection from '@/Components/ActionSection.vue';
+import ConfirmsPassword from '@/Components/ConfirmsPassword.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const props = defineProps({
+  requiresConfirmation: Boolean,
+});
+
+const page = usePage();
+const enabling = ref(false);
+const confirming = ref(false);
+const disabling = ref(false);
+const qrCode = ref(null);
+const setupKey = ref(null);
+const recoveryCodes = ref([]);
+
+const confirmationForm = useForm({
+  code: '',
+});
+
+const twoFactorEnabled = computed(
+  () => !enabling.value && page.props.auth.user?.two_factor_enabled,
+);
+
+watch(twoFactorEnabled, () => {
+  if (!twoFactorEnabled.value) {
+    confirmationForm.reset();
+    confirmationForm.clearErrors();
+  }
+});
+
+const showQrCode = () => axios.get(route('two-factor.qr-code')).then((response) => {
+  qrCode.value = response.data.svg;
+});
+
+const showSetupKey = () => axios.get(route('two-factor.secret-key')).then((response) => {
+  setupKey.value = response.data.secretKey;
+});
+
+const showRecoveryCodes = () => axios.get(route('two-factor.recovery-codes')).then((response) => {
+  recoveryCodes.value = response.data;
+});
+
+const enableTwoFactorAuthentication = () => {
+  enabling.value = true;
+
+  router.post(
+    route('two-factor.enable'),
+    {},
+    {
+      preserveScroll: true,
+      onSuccess: () => Promise.all([showQrCode(), showSetupKey(), showRecoveryCodes()]),
+      onFinish: () => {
+        enabling.value = false;
+        confirming.value = props.requiresConfirmation;
+      },
+    },
+  );
+};
+
+const confirmTwoFactorAuthentication = () => {
+  confirmationForm.post(route('two-factor.confirm'), {
+    errorBag: 'confirmTwoFactorAuthentication',
+    preserveScroll: true,
+    preserveState: true,
+    onSuccess: () => {
+      confirming.value = false;
+      qrCode.value = null;
+      setupKey.value = null;
+    },
+  });
+};
+
+const regenerateRecoveryCodes = () => {
+  axios
+    .post(route('two-factor.recovery-codes'))
+    .then(() => showRecoveryCodes());
+};
+
+const disableTwoFactorAuthentication = () => {
+  disabling.value = true;
+
+  router.delete(route('two-factor.disable'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      disabling.value = false;
+      confirming.value = false;
+    },
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Two Factor Authentication </template>
+
+    <template #description>
+      Add additional security to your account using two factor authentication.
+    </template>
+
+    <template #content>
+      <h3
+        v-if="twoFactorEnabled && !confirming"
+        class="text-lg font-medium text-gray-900"
+      >
+        You have enabled two factor authentication.
+      </h3>
+
+      <h3
+        v-else-if="twoFactorEnabled && confirming"
+        class="text-lg font-medium text-gray-900"
+      >
+        Finish enabling two factor authentication.
+      </h3>
+
+      <h3 v-else class="text-lg font-medium text-gray-900">
+        You have not enabled two factor authentication.
+      </h3>
+
+      <div class="mt-3 max-w-xl text-sm text-gray-600">
+        <p>
+          When two factor authentication is enabled, you will be prompted for a
+          secure, random token during authentication. You may retrieve this
+          token from your phone's Google Authenticator application.
+        </p>
+      </div>
+
+      <div v-if="twoFactorEnabled">
+        <div v-if="qrCode">
+          <div class="mt-4 max-w-xl text-sm text-gray-600">
+            <p v-if="confirming" class="font-semibold">
+              To finish enabling two factor authentication, scan the following
+              QR code using your phone's authenticator application or enter the
+              setup key and provide the generated OTP code.
+            </p>
+
+            <p v-else>
+              Two factor authentication is now enabled. Scan the following QR
+              code using your phone's authenticator application or enter the
+              setup key.
+            </p>
+          </div>
+
+          <div class="mt-4 p-2 inline-block bg-white" v-html="qrCode" />
+
+          <div v-if="setupKey" class="mt-4 max-w-xl text-sm text-gray-600">
+            <p class="font-semibold">
+              Setup Key: <span v-html="setupKey"></span>
+            </p>
+          </div>
+
+          <div v-if="confirming" class="mt-4">
+            <InputLabel for="code" value="Code" />
+
+            <TextInput
+              id="code"
+              v-model="confirmationForm.code"
+              type="text"
+              name="code"
+              class="block mt-1 w-1/2"
+              inputmode="numeric"
+              autofocus
+              autocomplete="one-time-code"
+              @keyup.enter="confirmTwoFactorAuthentication"
+            />
+
+            <InputError :message="confirmationForm.errors.code" class="mt-2" />
+          </div>
+        </div>
+
+        <div v-if="recoveryCodes.length > 0 && !confirming">
+          <div class="mt-4 max-w-xl text-sm text-gray-600">
+            <p class="font-semibold">
+              Store these recovery codes in a secure password manager. They can
+              be used to recover access to your account if your two factor
+              authentication device is lost.
+            </p>
+          </div>
+
+          <div
+            class="grid gap-1 max-w-xl mt-4 px-4 py-4 font-mono text-sm bg-gray-100 rounded-lg"
+          >
+            <div v-for="code in recoveryCodes" :key="code">
+              {{ code }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div v-if="!twoFactorEnabled">
+          <ConfirmsPassword @confirmed="enableTwoFactorAuthentication">
+            <PrimaryButton
+              type="button"
+              :class="{ 'opacity-25': enabling }"
+              :disabled="enabling"
+            >
+              Enable
+            </PrimaryButton>
+          </ConfirmsPassword>
+        </div>
+
+        <div v-else>
+          <ConfirmsPassword @confirmed="confirmTwoFactorAuthentication">
+            <PrimaryButton
+              v-if="confirming"
+              type="button"
+              class="me-3"
+              :class="{ 'opacity-25': enabling }"
+              :disabled="enabling"
+            >
+              Confirm
+            </PrimaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="regenerateRecoveryCodes">
+            <SecondaryButton
+              v-if="recoveryCodes.length > 0 && !confirming"
+              class="me-3"
+            >
+              Regenerate Recovery Codes
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="showRecoveryCodes">
+            <SecondaryButton
+              v-if="recoveryCodes.length === 0 && !confirming"
+              class="me-3"
+            >
+              Show Recovery Codes
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
+            <SecondaryButton
+              v-if="confirming"
+              :class="{ 'opacity-25': disabling }"
+              :disabled="disabling"
+            >
+              Cancel
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
+            <DangerButton
+              v-if="!confirming"
+              :class="{ 'opacity-25': disabling }"
+              :disabled="disabling"
+            >
+              Disable
+            </DangerButton>
+          </ConfirmsPassword>
+        </div>
+      </div>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\UpdatePasswordForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import FormSection from '@/Components/FormSection.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const passwordInput = ref(null);
+const currentPasswordInput = ref(null);
+
+const form = useForm({
+  current_password: '',
+  password: '',
+  password_confirmation: '',
+});
+
+const updatePassword = () => {
+  form.put(route('user-password.update'), {
+    errorBag: 'updatePassword',
+    preserveScroll: true,
+    onSuccess: () => form.reset(),
+    onError: () => {
+      if (form.errors.password) {
+        form.reset('password', 'password_confirmation');
+        passwordInput.value.focus();
+      }
+
+      if (form.errors.current_password) {
+        form.reset('current_password');
+        currentPasswordInput.value.focus();
+      }
+    },
+  });
+};
+</script>
+
+<template>
+  <FormSection @submitted="updatePassword">
+    <template #title> Update Password </template>
+
+    <template #description>
+      Ensure your account is using a long, random password to stay secure.
+    </template>
+
+    <template #form>
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="current_password" value="Current Password" />
+        <TextInput
+          id="current_password"
+          ref="currentPasswordInput"
+          v-model="form.current_password"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="current-password"
+        />
+        <InputError :message="form.errors.current_password" class="mt-2" />
+      </div>
+
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="password" value="New Password" />
+        <TextInput
+          id="password"
+          ref="passwordInput"
+          v-model="form.password"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="new-password"
+        />
+        <InputError :message="form.errors.password" class="mt-2" />
+      </div>
+
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="password_confirmation" value="Confirm Password" />
+        <TextInput
+          id="password_confirmation"
+          v-model="form.password_confirmation"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="new-password"
+        />
+        <InputError :message="form.errors.password_confirmation" class="mt-2" />
+      </div>
+    </template>
+
+    <template #actions>
+      <ActionMessage :on="form.recentlySuccessful" class="me-3">
+        Saved.
+      </ActionMessage>
+
+      <PrimaryButton
+        :class="{ 'opacity-25': form.processing }"
+        :disabled="form.processing"
+      >
+        Save
+      </PrimaryButton>
+    </template>
+  </FormSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\UpdateProfileInformationForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { Link, router, useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import FormSection from '@/Components/FormSection.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const props = defineProps({
+  user: Object,
+});
+
+const form = useForm({
+  _method: 'PUT',
+  name: props.user.name,
+  email: props.user.email,
+  photo: null,
+});
+
+const verificationLinkSent = ref(null);
+const photoPreview = ref(null);
+const photoInput = ref(null);
+
+const clearPhotoFileInput = () => {
+  if (photoInput.value?.value) {
+    photoInput.value.value = null;
+  }
+};
+
+const updateProfileInformation = () => {
+  if (photoInput.value) {
+    form.photo = photoInput.value.files[0];
+  }
+
+  form.post(route('user-profile-information.update'), {
+    errorBag: 'updateProfileInformation',
+    preserveScroll: true,
+    onSuccess: () => clearPhotoFileInput(),
+  });
+};
+
+const sendEmailVerification = () => {
+  verificationLinkSent.value = true;
+};
+
+const selectNewPhoto = () => {
+  photoInput.value.click();
+};
+
+const updatePhotoPreview = () => {
+  const photo = photoInput.value.files[0];
+
+  if (!photo) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    photoPreview.value = e.target.result;
+  };
+
+  reader.readAsDataURL(photo);
+};
+
+const deletePhoto = () => {
+  router.delete(route('current-user-photo.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      photoPreview.value = null;
+      clearPhotoFileInput();
+    },
+  });
+};
+</script>
+
+<template>
+  <FormSection @submitted="updateProfileInformation">
+    <template #title> Profile Information </template>
+
+    <template #description>
+      Update your account's profile information and email address.
+    </template>
+
+    <template #form>
+      <!-- Profile Photo -->
+      <div
+        v-if="$page.props.jetstream.managesProfilePhotos"
+        class="col-span-6 sm:col-span-4"
+      >
+        <!-- Profile Photo File Input -->
+        <input
+          id="photo"
+          ref="photoInput"
+          type="file"
+          class="hidden"
+          @change="updatePhotoPreview"
+        />
+
+        <InputLabel for="photo" value="Photo" />
+
+        <!-- Current Profile Photo -->
+        <div v-show="!photoPreview" class="mt-2">
+          <img
+            :src="user.profile_photo_url"
+            :alt="user.name"
+            class="rounded-full h-20 w-20 object-cover"
+          />
+        </div>
+
+        <!-- New Profile Photo Preview -->
+        <div v-show="photoPreview" class="mt-2">
+          <span
+            class="block rounded-full w-20 h-20 bg-cover bg-no-repeat bg-center"
+            :style="'background-image: url(\'' + photoPreview + '\');'"
+          />
+        </div>
+
+        <SecondaryButton
+          class="mt-2 me-2"
+          type="button"
+          @click.prevent="selectNewPhoto"
+        >
+          Select A New Photo
+        </SecondaryButton>
+
+        <SecondaryButton
+          v-if="user.profile_photo_path"
+          type="button"
+          class="mt-2"
+          @click.prevent="deletePhoto"
+        >
+          Remove Photo
+        </SecondaryButton>
+
+        <InputError :message="form.errors.photo" class="mt-2" />
+      </div>
+
+      <!-- Name -->
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="name" value="Name" />
+        <TextInput
+          id="name"
+          v-model="form.name"
+          type="text"
+          class="mt-1 block w-full"
+          required
+          autocomplete="name"
+        />
+        <InputError :message="form.errors.name" class="mt-2" />
+      </div>
+
+      <!-- Email -->
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="email" value="Email" />
+        <TextInput
+          id="email"
+          v-model="form.email"
+          type="email"
+          class="mt-1 block w-full"
+          required
+          autocomplete="username"
+        />
+        <InputError :message="form.errors.email" class="mt-2" />
+
+        <div
+          v-if="
+            $page.props.jetstream.hasEmailVerification &&
+            user.email_verified_at === null
+          "
+        >
+          <p class="text-sm mt-2">
+            Your email address is unverified.
+
+            <Link
+              :href="route('verification.send')"
+              method="post"
+              as="button"
+              class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              @click.prevent="sendEmailVerification"
+            >
+              Click here to re-send the verification email.
+            </Link>
+          </p>
+
+          <div
+            v-show="verificationLinkSent"
+            class="mt-2 font-medium text-sm text-green-600"
+          >
+            A new verification link has been sent to your email address.
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template #actions>
+      <ActionMessage :on="form.recentlySuccessful" class="me-3">
+        Saved.
+      </ActionMessage>
+
+      <PrimaryButton
+        :class="{ 'opacity-25': form.processing }"
+        :disabled="form.processing"
+      >
+        Save
+      </PrimaryButton>
+    </template>
+  </FormSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Show.vue ====
+
+<script setup>
+import AppLayout from '@/Layouts/AppLayout.vue';
+import DeleteUserForm from '@/Pages/Profile/Partials/DeleteUserForm.vue';
+import LogoutOtherBrowserSessionsForm from '@/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue';
+import SectionBorder from '@/Components/SectionBorder.vue';
+import TwoFactorAuthenticationForm from '@/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
+import UpdatePasswordForm from '@/Pages/Profile/Partials/UpdatePasswordForm.vue';
+import UpdateProfileInformationForm from '@/Pages/Profile/Partials/UpdateProfileInformationForm.vue';
+
+defineProps({
+  confirmsTwoFactorAuthentication: Boolean,
+  sessions: Array,
+});
+</script>
+
+<template>
+  <AppLayout title="Profile">
+    <template #header>
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight">Profile</h2>
+    </template>
+
+    <div>
+      <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+        <div v-if="$page.props.jetstream.canUpdateProfileInformation">
+          <UpdateProfileInformationForm :user="$page.props.auth.user" />
+
+          <SectionBorder />
+        </div>
+
+        <div v-if="$page.props.jetstream.canUpdatePassword">
+          <UpdatePasswordForm class="mt-10 sm:mt-0" />
+
+          <SectionBorder />
+        </div>
+
+        <div v-if="$page.props.jetstream.canManageTwoFactorAuthentication">
+          <TwoFactorAuthenticationForm
+            :requires-confirmation="confirmsTwoFactorAuthentication"
+            class="mt-10 sm:mt-0"
+          />
+
+          <SectionBorder />
+        </div>
+
+        <LogoutOtherBrowserSessionsForm
+          :sessions="sessions"
+          class="mt-10 sm:mt-0"
+        />
+
+        <template v-if="$page.props.jetstream.hasAccountDeletionFeatures">
+          <SectionBorder />
+
+          <DeleteUserForm class="mt-10 sm:mt-0" />
+        </template>
+      </div>
+    </div>
+  </AppLayout>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\DeleteUserForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionSection from '@/Components/ActionSection.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import DialogModal from '@/Components/DialogModal.vue';
+import InputError from '@/Components/InputError.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const confirmingUserDeletion = ref(false);
+const passwordInput = ref(null);
+
+const form = useForm({
+  password: '',
+});
+
+const confirmUserDeletion = () => {
+  confirmingUserDeletion.value = true;
+
+  setTimeout(() => passwordInput.value.focus(), 250);
+};
+
+const closeModal = () => {
+  confirmingUserDeletion.value = false;
+
+  form.reset();
+};
+
+const deleteUser = () => {
+  form.delete(route('current-user.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => closeModal(),
+    onError: () => passwordInput.value.focus(),
+    onFinish: () => form.reset(),
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Delete Account </template>
+
+    <template #description> Permanently delete your account. </template>
+
+    <template #content>
+      <div class="max-w-xl text-sm text-gray-600">
+        Once your account is deleted, all of its resources and data will be
+        permanently deleted. Before deleting your account, please download any
+        data or information that you wish to retain.
+      </div>
+
+      <div class="mt-5">
+        <DangerButton @click="confirmUserDeletion">
+          Delete Account
+        </DangerButton>
+      </div>
+
+      <!-- Delete Account Confirmation Modal -->
+      <DialogModal :show="confirmingUserDeletion" @close="closeModal">
+        <template #title> Delete Account </template>
+
+        <template #content>
+          Are you sure you want to delete your account? Once your account is
+          deleted, all of its resources and data will be permanently deleted.
+          Please enter your password to confirm you would like to permanently
+          delete your account.
+
+          <div class="mt-4">
+            <TextInput
+              ref="passwordInput"
+              v-model="form.password"
+              type="password"
+              class="mt-1 block w-3/4"
+              placeholder="Password"
+              autocomplete="current-password"
+              @keyup.enter="deleteUser"
+            />
+
+            <InputError :message="form.errors.password" class="mt-2" />
+          </div>
+        </template>
+
+        <template #footer>
+          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+
+          <DangerButton
+            class="ms-3"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+            @click="deleteUser"
+          >
+            Delete Account
+          </DangerButton>
+        </template>
+      </DialogModal>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\LogoutOtherBrowserSessionsForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import ActionSection from '@/Components/ActionSection.vue';
+import DialogModal from '@/Components/DialogModal.vue';
+import InputError from '@/Components/InputError.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+defineProps({
+  sessions: Array,
+});
+
+const confirmingLogout = ref(false);
+const passwordInput = ref(null);
+
+const form = useForm({
+  password: '',
+});
+
+const confirmLogout = () => {
+  confirmingLogout.value = true;
+
+  setTimeout(() => passwordInput.value.focus(), 250);
+};
+
+const closeModal = () => {
+  confirmingLogout.value = false;
+
+  form.reset();
+};
+
+const logoutOtherBrowserSessions = () => {
+  form.delete(route('other-browser-sessions.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => closeModal(),
+    onError: () => passwordInput.value.focus(),
+    onFinish: () => form.reset(),
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Browser Sessions </template>
+
+    <template #description>
+      Manage and log out your active sessions on other browsers and devices.
+    </template>
+
+    <template #content>
+      <div class="max-w-xl text-sm text-gray-600">
+        If necessary, you may log out of all of your other browser sessions
+        across all of your devices. Some of your recent sessions are listed
+        below; however, this list may not be exhaustive. If you feel your
+        account has been compromised, you should also update your password.
+      </div>
+
+      <!-- Other Browser Sessions -->
+      <div v-if="sessions.length > 0" class="mt-5 space-y-6">
+        <div
+          v-for="(session, i) in sessions"
+          :key="i"
+          class="flex items-center"
+        >
+          <div>
+            <svg
+              v-if="session.agent.is_desktop"
+              class="w-8 h-8 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"
+              />
+            </svg>
+
+            <svg
+              v-else
+              class="w-8 h-8 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
+              />
+            </svg>
+          </div>
+
+          <div class="ms-3">
+            <div class="text-sm text-gray-600">
+              {{ session.agent.platform ? session.agent.platform : 'Unknown' }}
+              - {{ session.agent.browser ? session.agent.browser : 'Unknown' }}
+            </div>
+
+            <div>
+              <div class="text-xs text-gray-500">
+                {{ session.ip_address }},
+
+                <span
+                  v-if="session.is_current_device"
+                  class="text-green-500 font-semibold"
+                  >This device</span
+                >
+                <span v-else>Last active {{ session.last_active }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center mt-5">
+        <PrimaryButton @click="confirmLogout">
+          Log Out Other Browser Sessions
+        </PrimaryButton>
+
+        <ActionMessage :on="form.recentlySuccessful" class="ms-3">
+          Done.
+        </ActionMessage>
+      </div>
+
+      <!-- Log Out Other Devices Confirmation Modal -->
+      <DialogModal :show="confirmingLogout" @close="closeModal">
+        <template #title> Log Out Other Browser Sessions </template>
+
+        <template #content>
+          Please enter your password to confirm you would like to log out of
+          your other browser sessions across all of your devices.
+
+          <div class="mt-4">
+            <TextInput
+              ref="passwordInput"
+              v-model="form.password"
+              type="password"
+              class="mt-1 block w-3/4"
+              placeholder="Password"
+              autocomplete="current-password"
+              @keyup.enter="logoutOtherBrowserSessions"
+            />
+
+            <InputError :message="form.errors.password" class="mt-2" />
+          </div>
+        </template>
+
+        <template #footer>
+          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+
+          <PrimaryButton
+            class="ms-3"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+            @click="logoutOtherBrowserSessions"
+          >
+            Log Out Other Browser Sessions
+          </PrimaryButton>
+        </template>
+      </DialogModal>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\TwoFactorAuthenticationForm.vue ====
+
+<script setup>
+import { ref, computed, watch } from 'vue';
+import { router, useForm, usePage } from '@inertiajs/vue3';
+import ActionSection from '@/Components/ActionSection.vue';
+import ConfirmsPassword from '@/Components/ConfirmsPassword.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const props = defineProps({
+  requiresConfirmation: Boolean,
+});
+
+const page = usePage();
+const enabling = ref(false);
+const confirming = ref(false);
+const disabling = ref(false);
+const qrCode = ref(null);
+const setupKey = ref(null);
+const recoveryCodes = ref([]);
+
+const confirmationForm = useForm({
+  code: '',
+});
+
+const twoFactorEnabled = computed(
+  () => !enabling.value && page.props.auth.user?.two_factor_enabled,
+);
+
+watch(twoFactorEnabled, () => {
+  if (!twoFactorEnabled.value) {
+    confirmationForm.reset();
+    confirmationForm.clearErrors();
+  }
+});
+
+const showQrCode = () => axios.get(route('two-factor.qr-code')).then((response) => {
+  qrCode.value = response.data.svg;
+});
+
+const showSetupKey = () => axios.get(route('two-factor.secret-key')).then((response) => {
+  setupKey.value = response.data.secretKey;
+});
+
+const showRecoveryCodes = () => axios.get(route('two-factor.recovery-codes')).then((response) => {
+  recoveryCodes.value = response.data;
+});
+
+const enableTwoFactorAuthentication = () => {
+  enabling.value = true;
+
+  router.post(
+    route('two-factor.enable'),
+    {},
+    {
+      preserveScroll: true,
+      onSuccess: () => Promise.all([showQrCode(), showSetupKey(), showRecoveryCodes()]),
+      onFinish: () => {
+        enabling.value = false;
+        confirming.value = props.requiresConfirmation;
+      },
+    },
+  );
+};
+
+const confirmTwoFactorAuthentication = () => {
+  confirmationForm.post(route('two-factor.confirm'), {
+    errorBag: 'confirmTwoFactorAuthentication',
+    preserveScroll: true,
+    preserveState: true,
+    onSuccess: () => {
+      confirming.value = false;
+      qrCode.value = null;
+      setupKey.value = null;
+    },
+  });
+};
+
+const regenerateRecoveryCodes = () => {
+  axios
+    .post(route('two-factor.recovery-codes'))
+    .then(() => showRecoveryCodes());
+};
+
+const disableTwoFactorAuthentication = () => {
+  disabling.value = true;
+
+  router.delete(route('two-factor.disable'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      disabling.value = false;
+      confirming.value = false;
+    },
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Two Factor Authentication </template>
+
+    <template #description>
+      Add additional security to your account using two factor authentication.
+    </template>
+
+    <template #content>
+      <h3
+        v-if="twoFactorEnabled && !confirming"
+        class="text-lg font-medium text-gray-900"
+      >
+        You have enabled two factor authentication.
+      </h3>
+
+      <h3
+        v-else-if="twoFactorEnabled && confirming"
+        class="text-lg font-medium text-gray-900"
+      >
+        Finish enabling two factor authentication.
+      </h3>
+
+      <h3 v-else class="text-lg font-medium text-gray-900">
+        You have not enabled two factor authentication.
+      </h3>
+
+      <div class="mt-3 max-w-xl text-sm text-gray-600">
+        <p>
+          When two factor authentication is enabled, you will be prompted for a
+          secure, random token during authentication. You may retrieve this
+          token from your phone's Google Authenticator application.
+        </p>
+      </div>
+
+      <div v-if="twoFactorEnabled">
+        <div v-if="qrCode">
+          <div class="mt-4 max-w-xl text-sm text-gray-600">
+            <p v-if="confirming" class="font-semibold">
+              To finish enabling two factor authentication, scan the following
+              QR code using your phone's authenticator application or enter the
+              setup key and provide the generated OTP code.
+            </p>
+
+            <p v-else>
+              Two factor authentication is now enabled. Scan the following QR
+              code using your phone's authenticator application or enter the
+              setup key.
+            </p>
+          </div>
+
+          <div class="mt-4 p-2 inline-block bg-white" v-html="qrCode" />
+
+          <div v-if="setupKey" class="mt-4 max-w-xl text-sm text-gray-600">
+            <p class="font-semibold">
+              Setup Key: <span v-html="setupKey"></span>
+            </p>
+          </div>
+
+          <div v-if="confirming" class="mt-4">
+            <InputLabel for="code" value="Code" />
+
+            <TextInput
+              id="code"
+              v-model="confirmationForm.code"
+              type="text"
+              name="code"
+              class="block mt-1 w-1/2"
+              inputmode="numeric"
+              autofocus
+              autocomplete="one-time-code"
+              @keyup.enter="confirmTwoFactorAuthentication"
+            />
+
+            <InputError :message="confirmationForm.errors.code" class="mt-2" />
+          </div>
+        </div>
+
+        <div v-if="recoveryCodes.length > 0 && !confirming">
+          <div class="mt-4 max-w-xl text-sm text-gray-600">
+            <p class="font-semibold">
+              Store these recovery codes in a secure password manager. They can
+              be used to recover access to your account if your two factor
+              authentication device is lost.
+            </p>
+          </div>
+
+          <div
+            class="grid gap-1 max-w-xl mt-4 px-4 py-4 font-mono text-sm bg-gray-100 rounded-lg"
+          >
+            <div v-for="code in recoveryCodes" :key="code">
+              {{ code }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div v-if="!twoFactorEnabled">
+          <ConfirmsPassword @confirmed="enableTwoFactorAuthentication">
+            <PrimaryButton
+              type="button"
+              :class="{ 'opacity-25': enabling }"
+              :disabled="enabling"
+            >
+              Enable
+            </PrimaryButton>
+          </ConfirmsPassword>
+        </div>
+
+        <div v-else>
+          <ConfirmsPassword @confirmed="confirmTwoFactorAuthentication">
+            <PrimaryButton
+              v-if="confirming"
+              type="button"
+              class="me-3"
+              :class="{ 'opacity-25': enabling }"
+              :disabled="enabling"
+            >
+              Confirm
+            </PrimaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="regenerateRecoveryCodes">
+            <SecondaryButton
+              v-if="recoveryCodes.length > 0 && !confirming"
+              class="me-3"
+            >
+              Regenerate Recovery Codes
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="showRecoveryCodes">
+            <SecondaryButton
+              v-if="recoveryCodes.length === 0 && !confirming"
+              class="me-3"
+            >
+              Show Recovery Codes
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
+            <SecondaryButton
+              v-if="confirming"
+              :class="{ 'opacity-25': disabling }"
+              :disabled="disabling"
+            >
+              Cancel
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
+            <DangerButton
+              v-if="!confirming"
+              :class="{ 'opacity-25': disabling }"
+              :disabled="disabling"
+            >
+              Disable
+            </DangerButton>
+          </ConfirmsPassword>
+        </div>
+      </div>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\UpdatePasswordForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import FormSection from '@/Components/FormSection.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const passwordInput = ref(null);
+const currentPasswordInput = ref(null);
+
+const form = useForm({
+  current_password: '',
+  password: '',
+  password_confirmation: '',
+});
+
+const updatePassword = () => {
+  form.put(route('user-password.update'), {
+    errorBag: 'updatePassword',
+    preserveScroll: true,
+    onSuccess: () => form.reset(),
+    onError: () => {
+      if (form.errors.password) {
+        form.reset('password', 'password_confirmation');
+        passwordInput.value.focus();
+      }
+
+      if (form.errors.current_password) {
+        form.reset('current_password');
+        currentPasswordInput.value.focus();
+      }
+    },
+  });
+};
+</script>
+
+<template>
+  <FormSection @submitted="updatePassword">
+    <template #title> Update Password </template>
+
+    <template #description>
+      Ensure your account is using a long, random password to stay secure.
+    </template>
+
+    <template #form>
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="current_password" value="Current Password" />
+        <TextInput
+          id="current_password"
+          ref="currentPasswordInput"
+          v-model="form.current_password"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="current-password"
+        />
+        <InputError :message="form.errors.current_password" class="mt-2" />
+      </div>
+
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="password" value="New Password" />
+        <TextInput
+          id="password"
+          ref="passwordInput"
+          v-model="form.password"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="new-password"
+        />
+        <InputError :message="form.errors.password" class="mt-2" />
+      </div>
+
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="password_confirmation" value="Confirm Password" />
+        <TextInput
+          id="password_confirmation"
+          v-model="form.password_confirmation"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="new-password"
+        />
+        <InputError :message="form.errors.password_confirmation" class="mt-2" />
+      </div>
+    </template>
+
+    <template #actions>
+      <ActionMessage :on="form.recentlySuccessful" class="me-3">
+        Saved.
+      </ActionMessage>
+
+      <PrimaryButton
+        :class="{ 'opacity-25': form.processing }"
+        :disabled="form.processing"
+      >
+        Save
+      </PrimaryButton>
+    </template>
+  </FormSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\UpdateProfileInformationForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { Link, router, useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import FormSection from '@/Components/FormSection.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const props = defineProps({
+  user: Object,
+});
+
+const form = useForm({
+  _method: 'PUT',
+  name: props.user.name,
+  email: props.user.email,
+  photo: null,
+});
+
+const verificationLinkSent = ref(null);
+const photoPreview = ref(null);
+const photoInput = ref(null);
+
+const clearPhotoFileInput = () => {
+  if (photoInput.value?.value) {
+    photoInput.value.value = null;
+  }
+};
+
+const updateProfileInformation = () => {
+  if (photoInput.value) {
+    form.photo = photoInput.value.files[0];
+  }
+
+  form.post(route('user-profile-information.update'), {
+    errorBag: 'updateProfileInformation',
+    preserveScroll: true,
+    onSuccess: () => clearPhotoFileInput(),
+  });
+};
+
+const sendEmailVerification = () => {
+  verificationLinkSent.value = true;
+};
+
+const selectNewPhoto = () => {
+  photoInput.value.click();
+};
+
+const updatePhotoPreview = () => {
+  const photo = photoInput.value.files[0];
+
+  if (!photo) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    photoPreview.value = e.target.result;
+  };
+
+  reader.readAsDataURL(photo);
+};
+
+const deletePhoto = () => {
+  router.delete(route('current-user-photo.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      photoPreview.value = null;
+      clearPhotoFileInput();
+    },
+  });
+};
+</script>
+
+<template>
+  <FormSection @submitted="updateProfileInformation">
+    <template #title> Profile Information </template>
+
+    <template #description>
+      Update your account's profile information and email address.
+    </template>
+
+    <template #form>
+      <!-- Profile Photo -->
+      <div
+        v-if="$page.props.jetstream.managesProfilePhotos"
+        class="col-span-6 sm:col-span-4"
+      >
+        <!-- Profile Photo File Input -->
+        <input
+          id="photo"
+          ref="photoInput"
+          type="file"
+          class="hidden"
+          @change="updatePhotoPreview"
+        />
+
+        <InputLabel for="photo" value="Photo" />
+
+        <!-- Current Profile Photo -->
+        <div v-show="!photoPreview" class="mt-2">
+          <img
+            :src="user.profile_photo_url"
+            :alt="user.name"
+            class="rounded-full h-20 w-20 object-cover"
+          />
+        </div>
+
+        <!-- New Profile Photo Preview -->
+        <div v-show="photoPreview" class="mt-2">
+          <span
+            class="block rounded-full w-20 h-20 bg-cover bg-no-repeat bg-center"
+            :style="'background-image: url(\'' + photoPreview + '\');'"
+          />
+        </div>
+
+        <SecondaryButton
+          class="mt-2 me-2"
+          type="button"
+          @click.prevent="selectNewPhoto"
+        >
+          Select A New Photo
+        </SecondaryButton>
+
+        <SecondaryButton
+          v-if="user.profile_photo_path"
+          type="button"
+          class="mt-2"
+          @click.prevent="deletePhoto"
+        >
+          Remove Photo
+        </SecondaryButton>
+
+        <InputError :message="form.errors.photo" class="mt-2" />
+      </div>
+
+      <!-- Name -->
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="name" value="Name" />
+        <TextInput
+          id="name"
+          v-model="form.name"
+          type="text"
+          class="mt-1 block w-full"
+          required
+          autocomplete="name"
+        />
+        <InputError :message="form.errors.name" class="mt-2" />
+      </div>
+
+      <!-- Email -->
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="email" value="Email" />
+        <TextInput
+          id="email"
+          v-model="form.email"
+          type="email"
+          class="mt-1 block w-full"
+          required
+          autocomplete="username"
+        />
+        <InputError :message="form.errors.email" class="mt-2" />
+
+        <div
+          v-if="
+            $page.props.jetstream.hasEmailVerification &&
+            user.email_verified_at === null
+          "
+        >
+          <p class="text-sm mt-2">
+            Your email address is unverified.
+
+            <Link
+              :href="route('verification.send')"
+              method="post"
+              as="button"
+              class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              @click.prevent="sendEmailVerification"
+            >
+              Click here to re-send the verification email.
+            </Link>
+          </p>
+
+          <div
+            v-show="verificationLinkSent"
+            class="mt-2 font-medium text-sm text-green-600"
+          >
+            A new verification link has been sent to your email address.
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template #actions>
+      <ActionMessage :on="form.recentlySuccessful" class="me-3">
+        Saved.
+      </ActionMessage>
+
+      <PrimaryButton
+        :class="{ 'opacity-25': form.processing }"
+        :disabled="form.processing"
+      >
+        Save
+      </PrimaryButton>
+    </template>
+  </FormSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\DeleteUserForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionSection from '@/Components/ActionSection.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import DialogModal from '@/Components/DialogModal.vue';
+import InputError from '@/Components/InputError.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const confirmingUserDeletion = ref(false);
+const passwordInput = ref(null);
+
+const form = useForm({
+  password: '',
+});
+
+const confirmUserDeletion = () => {
+  confirmingUserDeletion.value = true;
+
+  setTimeout(() => passwordInput.value.focus(), 250);
+};
+
+const closeModal = () => {
+  confirmingUserDeletion.value = false;
+
+  form.reset();
+};
+
+const deleteUser = () => {
+  form.delete(route('current-user.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => closeModal(),
+    onError: () => passwordInput.value.focus(),
+    onFinish: () => form.reset(),
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Delete Account </template>
+
+    <template #description> Permanently delete your account. </template>
+
+    <template #content>
+      <div class="max-w-xl text-sm text-gray-600">
+        Once your account is deleted, all of its resources and data will be
+        permanently deleted. Before deleting your account, please download any
+        data or information that you wish to retain.
+      </div>
+
+      <div class="mt-5">
+        <DangerButton @click="confirmUserDeletion">
+          Delete Account
+        </DangerButton>
+      </div>
+
+      <!-- Delete Account Confirmation Modal -->
+      <DialogModal :show="confirmingUserDeletion" @close="closeModal">
+        <template #title> Delete Account </template>
+
+        <template #content>
+          Are you sure you want to delete your account? Once your account is
+          deleted, all of its resources and data will be permanently deleted.
+          Please enter your password to confirm you would like to permanently
+          delete your account.
+
+          <div class="mt-4">
+            <TextInput
+              ref="passwordInput"
+              v-model="form.password"
+              type="password"
+              class="mt-1 block w-3/4"
+              placeholder="Password"
+              autocomplete="current-password"
+              @keyup.enter="deleteUser"
+            />
+
+            <InputError :message="form.errors.password" class="mt-2" />
+          </div>
+        </template>
+
+        <template #footer>
+          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+
+          <DangerButton
+            class="ms-3"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+            @click="deleteUser"
+          >
+            Delete Account
+          </DangerButton>
+        </template>
+      </DialogModal>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\LogoutOtherBrowserSessionsForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import ActionSection from '@/Components/ActionSection.vue';
+import DialogModal from '@/Components/DialogModal.vue';
+import InputError from '@/Components/InputError.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+defineProps({
+  sessions: Array,
+});
+
+const confirmingLogout = ref(false);
+const passwordInput = ref(null);
+
+const form = useForm({
+  password: '',
+});
+
+const confirmLogout = () => {
+  confirmingLogout.value = true;
+
+  setTimeout(() => passwordInput.value.focus(), 250);
+};
+
+const closeModal = () => {
+  confirmingLogout.value = false;
+
+  form.reset();
+};
+
+const logoutOtherBrowserSessions = () => {
+  form.delete(route('other-browser-sessions.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => closeModal(),
+    onError: () => passwordInput.value.focus(),
+    onFinish: () => form.reset(),
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Browser Sessions </template>
+
+    <template #description>
+      Manage and log out your active sessions on other browsers and devices.
+    </template>
+
+    <template #content>
+      <div class="max-w-xl text-sm text-gray-600">
+        If necessary, you may log out of all of your other browser sessions
+        across all of your devices. Some of your recent sessions are listed
+        below; however, this list may not be exhaustive. If you feel your
+        account has been compromised, you should also update your password.
+      </div>
+
+      <!-- Other Browser Sessions -->
+      <div v-if="sessions.length > 0" class="mt-5 space-y-6">
+        <div
+          v-for="(session, i) in sessions"
+          :key="i"
+          class="flex items-center"
+        >
+          <div>
+            <svg
+              v-if="session.agent.is_desktop"
+              class="w-8 h-8 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"
+              />
+            </svg>
+
+            <svg
+              v-else
+              class="w-8 h-8 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
+              />
+            </svg>
+          </div>
+
+          <div class="ms-3">
+            <div class="text-sm text-gray-600">
+              {{ session.agent.platform ? session.agent.platform : 'Unknown' }}
+              - {{ session.agent.browser ? session.agent.browser : 'Unknown' }}
+            </div>
+
+            <div>
+              <div class="text-xs text-gray-500">
+                {{ session.ip_address }},
+
+                <span
+                  v-if="session.is_current_device"
+                  class="text-green-500 font-semibold"
+                  >This device</span
+                >
+                <span v-else>Last active {{ session.last_active }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center mt-5">
+        <PrimaryButton @click="confirmLogout">
+          Log Out Other Browser Sessions
+        </PrimaryButton>
+
+        <ActionMessage :on="form.recentlySuccessful" class="ms-3">
+          Done.
+        </ActionMessage>
+      </div>
+
+      <!-- Log Out Other Devices Confirmation Modal -->
+      <DialogModal :show="confirmingLogout" @close="closeModal">
+        <template #title> Log Out Other Browser Sessions </template>
+
+        <template #content>
+          Please enter your password to confirm you would like to log out of
+          your other browser sessions across all of your devices.
+
+          <div class="mt-4">
+            <TextInput
+              ref="passwordInput"
+              v-model="form.password"
+              type="password"
+              class="mt-1 block w-3/4"
+              placeholder="Password"
+              autocomplete="current-password"
+              @keyup.enter="logoutOtherBrowserSessions"
+            />
+
+            <InputError :message="form.errors.password" class="mt-2" />
+          </div>
+        </template>
+
+        <template #footer>
+          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+
+          <PrimaryButton
+            class="ms-3"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+            @click="logoutOtherBrowserSessions"
+          >
+            Log Out Other Browser Sessions
+          </PrimaryButton>
+        </template>
+      </DialogModal>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\TwoFactorAuthenticationForm.vue ====
+
+<script setup>
+import { ref, computed, watch } from 'vue';
+import { router, useForm, usePage } from '@inertiajs/vue3';
+import ActionSection from '@/Components/ActionSection.vue';
+import ConfirmsPassword from '@/Components/ConfirmsPassword.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const props = defineProps({
+  requiresConfirmation: Boolean,
+});
+
+const page = usePage();
+const enabling = ref(false);
+const confirming = ref(false);
+const disabling = ref(false);
+const qrCode = ref(null);
+const setupKey = ref(null);
+const recoveryCodes = ref([]);
+
+const confirmationForm = useForm({
+  code: '',
+});
+
+const twoFactorEnabled = computed(
+  () => !enabling.value && page.props.auth.user?.two_factor_enabled,
+);
+
+watch(twoFactorEnabled, () => {
+  if (!twoFactorEnabled.value) {
+    confirmationForm.reset();
+    confirmationForm.clearErrors();
+  }
+});
+
+const showQrCode = () => axios.get(route('two-factor.qr-code')).then((response) => {
+  qrCode.value = response.data.svg;
+});
+
+const showSetupKey = () => axios.get(route('two-factor.secret-key')).then((response) => {
+  setupKey.value = response.data.secretKey;
+});
+
+const showRecoveryCodes = () => axios.get(route('two-factor.recovery-codes')).then((response) => {
+  recoveryCodes.value = response.data;
+});
+
+const enableTwoFactorAuthentication = () => {
+  enabling.value = true;
+
+  router.post(
+    route('two-factor.enable'),
+    {},
+    {
+      preserveScroll: true,
+      onSuccess: () => Promise.all([showQrCode(), showSetupKey(), showRecoveryCodes()]),
+      onFinish: () => {
+        enabling.value = false;
+        confirming.value = props.requiresConfirmation;
+      },
+    },
+  );
+};
+
+const confirmTwoFactorAuthentication = () => {
+  confirmationForm.post(route('two-factor.confirm'), {
+    errorBag: 'confirmTwoFactorAuthentication',
+    preserveScroll: true,
+    preserveState: true,
+    onSuccess: () => {
+      confirming.value = false;
+      qrCode.value = null;
+      setupKey.value = null;
+    },
+  });
+};
+
+const regenerateRecoveryCodes = () => {
+  axios
+    .post(route('two-factor.recovery-codes'))
+    .then(() => showRecoveryCodes());
+};
+
+const disableTwoFactorAuthentication = () => {
+  disabling.value = true;
+
+  router.delete(route('two-factor.disable'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      disabling.value = false;
+      confirming.value = false;
+    },
+  });
+};
+</script>
+
+<template>
+  <ActionSection>
+    <template #title> Two Factor Authentication </template>
+
+    <template #description>
+      Add additional security to your account using two factor authentication.
+    </template>
+
+    <template #content>
+      <h3
+        v-if="twoFactorEnabled && !confirming"
+        class="text-lg font-medium text-gray-900"
+      >
+        You have enabled two factor authentication.
+      </h3>
+
+      <h3
+        v-else-if="twoFactorEnabled && confirming"
+        class="text-lg font-medium text-gray-900"
+      >
+        Finish enabling two factor authentication.
+      </h3>
+
+      <h3 v-else class="text-lg font-medium text-gray-900">
+        You have not enabled two factor authentication.
+      </h3>
+
+      <div class="mt-3 max-w-xl text-sm text-gray-600">
+        <p>
+          When two factor authentication is enabled, you will be prompted for a
+          secure, random token during authentication. You may retrieve this
+          token from your phone's Google Authenticator application.
+        </p>
+      </div>
+
+      <div v-if="twoFactorEnabled">
+        <div v-if="qrCode">
+          <div class="mt-4 max-w-xl text-sm text-gray-600">
+            <p v-if="confirming" class="font-semibold">
+              To finish enabling two factor authentication, scan the following
+              QR code using your phone's authenticator application or enter the
+              setup key and provide the generated OTP code.
+            </p>
+
+            <p v-else>
+              Two factor authentication is now enabled. Scan the following QR
+              code using your phone's authenticator application or enter the
+              setup key.
+            </p>
+          </div>
+
+          <div class="mt-4 p-2 inline-block bg-white" v-html="qrCode" />
+
+          <div v-if="setupKey" class="mt-4 max-w-xl text-sm text-gray-600">
+            <p class="font-semibold">
+              Setup Key: <span v-html="setupKey"></span>
+            </p>
+          </div>
+
+          <div v-if="confirming" class="mt-4">
+            <InputLabel for="code" value="Code" />
+
+            <TextInput
+              id="code"
+              v-model="confirmationForm.code"
+              type="text"
+              name="code"
+              class="block mt-1 w-1/2"
+              inputmode="numeric"
+              autofocus
+              autocomplete="one-time-code"
+              @keyup.enter="confirmTwoFactorAuthentication"
+            />
+
+            <InputError :message="confirmationForm.errors.code" class="mt-2" />
+          </div>
+        </div>
+
+        <div v-if="recoveryCodes.length > 0 && !confirming">
+          <div class="mt-4 max-w-xl text-sm text-gray-600">
+            <p class="font-semibold">
+              Store these recovery codes in a secure password manager. They can
+              be used to recover access to your account if your two factor
+              authentication device is lost.
+            </p>
+          </div>
+
+          <div
+            class="grid gap-1 max-w-xl mt-4 px-4 py-4 font-mono text-sm bg-gray-100 rounded-lg"
+          >
+            <div v-for="code in recoveryCodes" :key="code">
+              {{ code }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <div v-if="!twoFactorEnabled">
+          <ConfirmsPassword @confirmed="enableTwoFactorAuthentication">
+            <PrimaryButton
+              type="button"
+              :class="{ 'opacity-25': enabling }"
+              :disabled="enabling"
+            >
+              Enable
+            </PrimaryButton>
+          </ConfirmsPassword>
+        </div>
+
+        <div v-else>
+          <ConfirmsPassword @confirmed="confirmTwoFactorAuthentication">
+            <PrimaryButton
+              v-if="confirming"
+              type="button"
+              class="me-3"
+              :class="{ 'opacity-25': enabling }"
+              :disabled="enabling"
+            >
+              Confirm
+            </PrimaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="regenerateRecoveryCodes">
+            <SecondaryButton
+              v-if="recoveryCodes.length > 0 && !confirming"
+              class="me-3"
+            >
+              Regenerate Recovery Codes
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="showRecoveryCodes">
+            <SecondaryButton
+              v-if="recoveryCodes.length === 0 && !confirming"
+              class="me-3"
+            >
+              Show Recovery Codes
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
+            <SecondaryButton
+              v-if="confirming"
+              :class="{ 'opacity-25': disabling }"
+              :disabled="disabling"
+            >
+              Cancel
+            </SecondaryButton>
+          </ConfirmsPassword>
+
+          <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
+            <DangerButton
+              v-if="!confirming"
+              :class="{ 'opacity-25': disabling }"
+              :disabled="disabling"
+            >
+              Disable
+            </DangerButton>
+          </ConfirmsPassword>
+        </div>
+      </div>
+    </template>
+  </ActionSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\UpdatePasswordForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import FormSection from '@/Components/FormSection.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const passwordInput = ref(null);
+const currentPasswordInput = ref(null);
+
+const form = useForm({
+  current_password: '',
+  password: '',
+  password_confirmation: '',
+});
+
+const updatePassword = () => {
+  form.put(route('user-password.update'), {
+    errorBag: 'updatePassword',
+    preserveScroll: true,
+    onSuccess: () => form.reset(),
+    onError: () => {
+      if (form.errors.password) {
+        form.reset('password', 'password_confirmation');
+        passwordInput.value.focus();
+      }
+
+      if (form.errors.current_password) {
+        form.reset('current_password');
+        currentPasswordInput.value.focus();
+      }
+    },
+  });
+};
+</script>
+
+<template>
+  <FormSection @submitted="updatePassword">
+    <template #title> Update Password </template>
+
+    <template #description>
+      Ensure your account is using a long, random password to stay secure.
+    </template>
+
+    <template #form>
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="current_password" value="Current Password" />
+        <TextInput
+          id="current_password"
+          ref="currentPasswordInput"
+          v-model="form.current_password"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="current-password"
+        />
+        <InputError :message="form.errors.current_password" class="mt-2" />
+      </div>
+
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="password" value="New Password" />
+        <TextInput
+          id="password"
+          ref="passwordInput"
+          v-model="form.password"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="new-password"
+        />
+        <InputError :message="form.errors.password" class="mt-2" />
+      </div>
+
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="password_confirmation" value="Confirm Password" />
+        <TextInput
+          id="password_confirmation"
+          v-model="form.password_confirmation"
+          type="password"
+          class="mt-1 block w-full"
+          autocomplete="new-password"
+        />
+        <InputError :message="form.errors.password_confirmation" class="mt-2" />
+      </div>
+    </template>
+
+    <template #actions>
+      <ActionMessage :on="form.recentlySuccessful" class="me-3">
+        Saved.
+      </ActionMessage>
+
+      <PrimaryButton
+        :class="{ 'opacity-25': form.processing }"
+        :disabled="form.processing"
+      >
+        Save
+      </PrimaryButton>
+    </template>
+  </FormSection>
+</template>
+
+
+==== resources\js\Pages\Profile\Partials\UpdateProfileInformationForm.vue ====
+
+<script setup>
+import { ref } from 'vue';
+import { Link, router, useForm } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import FormSection from '@/Components/FormSection.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+
+const props = defineProps({
+  user: Object,
+});
+
+const form = useForm({
+  _method: 'PUT',
+  name: props.user.name,
+  email: props.user.email,
+  photo: null,
+});
+
+const verificationLinkSent = ref(null);
+const photoPreview = ref(null);
+const photoInput = ref(null);
+
+const clearPhotoFileInput = () => {
+  if (photoInput.value?.value) {
+    photoInput.value.value = null;
+  }
+};
+
+const updateProfileInformation = () => {
+  if (photoInput.value) {
+    form.photo = photoInput.value.files[0];
+  }
+
+  form.post(route('user-profile-information.update'), {
+    errorBag: 'updateProfileInformation',
+    preserveScroll: true,
+    onSuccess: () => clearPhotoFileInput(),
+  });
+};
+
+const sendEmailVerification = () => {
+  verificationLinkSent.value = true;
+};
+
+const selectNewPhoto = () => {
+  photoInput.value.click();
+};
+
+const updatePhotoPreview = () => {
+  const photo = photoInput.value.files[0];
+
+  if (!photo) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    photoPreview.value = e.target.result;
+  };
+
+  reader.readAsDataURL(photo);
+};
+
+const deletePhoto = () => {
+  router.delete(route('current-user-photo.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      photoPreview.value = null;
+      clearPhotoFileInput();
+    },
+  });
+};
+</script>
+
+<template>
+  <FormSection @submitted="updateProfileInformation">
+    <template #title> Profile Information </template>
+
+    <template #description>
+      Update your account's profile information and email address.
+    </template>
+
+    <template #form>
+      <!-- Profile Photo -->
+      <div
+        v-if="$page.props.jetstream.managesProfilePhotos"
+        class="col-span-6 sm:col-span-4"
+      >
+        <!-- Profile Photo File Input -->
+        <input
+          id="photo"
+          ref="photoInput"
+          type="file"
+          class="hidden"
+          @change="updatePhotoPreview"
+        />
+
+        <InputLabel for="photo" value="Photo" />
+
+        <!-- Current Profile Photo -->
+        <div v-show="!photoPreview" class="mt-2">
+          <img
+            :src="user.profile_photo_url"
+            :alt="user.name"
+            class="rounded-full h-20 w-20 object-cover"
+          />
+        </div>
+
+        <!-- New Profile Photo Preview -->
+        <div v-show="photoPreview" class="mt-2">
+          <span
+            class="block rounded-full w-20 h-20 bg-cover bg-no-repeat bg-center"
+            :style="'background-image: url(\'' + photoPreview + '\');'"
+          />
+        </div>
+
+        <SecondaryButton
+          class="mt-2 me-2"
+          type="button"
+          @click.prevent="selectNewPhoto"
+        >
+          Select A New Photo
+        </SecondaryButton>
+
+        <SecondaryButton
+          v-if="user.profile_photo_path"
+          type="button"
+          class="mt-2"
+          @click.prevent="deletePhoto"
+        >
+          Remove Photo
+        </SecondaryButton>
+
+        <InputError :message="form.errors.photo" class="mt-2" />
+      </div>
+
+      <!-- Name -->
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="name" value="Name" />
+        <TextInput
+          id="name"
+          v-model="form.name"
+          type="text"
+          class="mt-1 block w-full"
+          required
+          autocomplete="name"
+        />
+        <InputError :message="form.errors.name" class="mt-2" />
+      </div>
+
+      <!-- Email -->
+      <div class="col-span-6 sm:col-span-4">
+        <InputLabel for="email" value="Email" />
+        <TextInput
+          id="email"
+          v-model="form.email"
+          type="email"
+          class="mt-1 block w-full"
+          required
+          autocomplete="username"
+        />
+        <InputError :message="form.errors.email" class="mt-2" />
+
+        <div
+          v-if="
+            $page.props.jetstream.hasEmailVerification &&
+            user.email_verified_at === null
+          "
+        >
+          <p class="text-sm mt-2">
+            Your email address is unverified.
+
+            <Link
+              :href="route('verification.send')"
+              method="post"
+              as="button"
+              class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              @click.prevent="sendEmailVerification"
+            >
+              Click here to re-send the verification email.
+            </Link>
+          </p>
+
+          <div
+            v-show="verificationLinkSent"
+            class="mt-2 font-medium text-sm text-green-600"
+          >
+            A new verification link has been sent to your email address.
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template #actions>
+      <ActionMessage :on="form.recentlySuccessful" class="me-3">
+        Saved.
+      </ActionMessage>
+
+      <PrimaryButton
+        :class="{ 'opacity-25': form.processing }"
+        :disabled="form.processing"
+      >
+        Save
+      </PrimaryButton>
+    </template>
+  </FormSection>
+</template>

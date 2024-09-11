@@ -9,7 +9,31 @@ use Illuminate\Support\Facades\Auth;
 
 class EtlConfigController extends Controller
 {
-    // Show the form for creating a new ETL Config
+
+    public function index(Request $request)
+    {
+        $page = $request->input('page', 1);
+        $itemsPerPage = $request->input('itemsPerPage', 10);
+
+        $etlConfigs = ETLConfig::paginate($itemsPerPage, ['*'], 'page', $page);
+
+        return inertia('EtlConfig/Index', [
+            'etlConfigs' => $etlConfigs,
+            'isRecent' => false,
+        ]);
+    }
+
+
+    public function recent(Request $request)
+    {
+        $perPage = $request->query('itemsPerPage', 5);
+        $etlConfigs = EtlConfig::orderBy('updated_at', 'desc')->paginate($perPage);
+
+        return Inertia::render('EtlConfig/Index', [
+            'etlConfigs' => $etlConfigs,
+            'isRecent' => true,
+        ]);
+    }
     public function create()
     {
         $user = Auth::user(); // Get the authenticated user
@@ -87,26 +111,8 @@ class EtlConfigController extends Controller
         return redirect()->route('etl_configs.index')->with('success', 'ETL Config updated successfully!');
     }
 
-    public function index()
-    {
-        $etlConfigs = EtlConfig::orderBy('updated_at', 'desc')->take(15)->get();
-        return Inertia::render('EtlConfig/Index', [
-            'etlConfigs' => $etlConfigs,
-            'isRecent' => false, // Indicating that this is the "All" view
-        ]);
-    }
-
-    public function recent()
-    {
-        $etlConfigs = EtlConfig::orderBy('updated_at', 'desc')->take(5)->get();
-        return Inertia::render('EtlConfig/Index', [
-            'etlConfigs' => $etlConfigs,
-            'isRecent' => true, // Indicating that this is the "Recent" view
-        ]);
-    }
 
 
-    // Download all ETL configs as CSV
     public function downloadAll()
     {
         $configs = EtlConfig::all();
